@@ -6,7 +6,7 @@ project = dl.projects.get(project_name="DemoProject")
 
 #Q2.A
 #Create a new dataset
-dataset = project.datasets.create(dataset_name="pythonSdkDataSet1") 
+dataset = project.datasets.create(dataset_name="pythonSdkDataSet2") 
 
 
 #Q2.B
@@ -86,3 +86,49 @@ for item in pages.all():
     items_list.append(item_dict)
 
 print(items_list)
+
+
+#Improvements Required
+
+#Q2 - Improv
+#Update user metadata
+import datetime
+now = datetime.datetime.now().isoformat()
+filters = dl.Filters()
+dataset.items.update(filters=filters, update_values={'collected': now})
+
+
+#Q2.G - Improv
+#Add points to an item
+import random
+item_2 = items_list[1]
+height = item_2.metadata['system']['height']
+width = item_2.metadata['system']['width'] 
+builder = item_2.annotations.builder()
+for counter in range(0,5):
+    x = random.randint(0, width)
+    y = random.randint(0, height)
+    builder.add(annotation_definition=dl.Point(x, y, 'key'))
+item_2.annotations.upload(builder)
+
+#Q4
+#Query to get and print all point annotations
+filters = dl.Filters(resource=dl.FiltersResource.ANNOTATION)
+filters.add(field='type', values='point')
+pages = dataset.annotations.list(filters=filters)
+
+items_dict = {}
+for annotation in pages.all():   
+    if annotation.item_id not in items_dict:
+        items_dict[annotation.item_id] = []
+    
+    items_dict[annotation.item_id].append({
+        'id': annotation.id,
+        'name': annotation.label,
+        'x_value': annotation.x,
+        'y_value': annotation.y
+    })
+
+
+print(items_dict)
+
